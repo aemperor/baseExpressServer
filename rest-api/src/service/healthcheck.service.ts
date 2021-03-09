@@ -1,6 +1,6 @@
 import { ConfigurationObject } from '../object/configuration.obj';
 import { HealthCheckResponseObject } from '../object/healthcheck-response.obj';
-import { LoggerService } from '../service/logger.service';
+import { LoggerService } from './logger.service';
 
 export class HealthCheckService {
     constructor(private readonly config: ConfigurationObject, private readonly loggerService: LoggerService) {
