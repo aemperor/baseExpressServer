@@ -1,9 +1,9 @@
 import App from './app';
 import { config } from 'dotenv';
 import { ConfigurationObject } from './object/configuration.obj';
-// import HealthCheckController from './controller/healthcheck.controller';
-// import { HealthCheckService } from './service/healthcheck.service';
-// import { LoggerService } from './service/logger.service';
+import { GraphQLSchema } from 'graphql';
+import { buildSchema } from 'type-graphql';
+import { HealthCheckResolver } from './resolver/healthcheck.resolver';
 
 const DEFAULT_PORT = 3000;
 const DEFAULT_TIMEOUT = 5; // in seconds
@@ -20,9 +20,33 @@ const timeout = process.env.EXPRESS_TIMEOUT ? Number(process.env.EXPRESS_TIMEOUT
 
 // const loggerService : LoggerService = new LoggerService(configurationDto);
 
-const app = new App(
+async function getSchema() : Promise<GraphQLSchema> {
+  const schema = await buildSchema({
+    resolvers: [
+      HealthCheckResolver,
+    ],
+    emitSchemaFile: true,
+  }).catch((ex) => {
+    throw ex;
+  });
+
+  return schema;
+}
+
+let app;
+getSchema().then((schema) => {
+  app = new App(
+    schema,
     port,
     timeout
-);
+  );
 
-app.createServer();
+  if (app) {
+    app.createServer();
+  } else {
+    console.error('There was an error creating the server!');
+  }
+}).catch((ex) => {
+  throw ex;
+});
+
